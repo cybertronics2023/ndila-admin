@@ -414,6 +414,118 @@ async function saveToSupabase() {
     }
 }
 
+// Collect all form data into content object before saving
+function collectFormData() {
+    // Helper to get input value by ID
+    const getValue = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : null;
+    };
+
+    // --- Settings ---
+    if (content.settings) {
+        const brandName = getValue('settings_brandName');
+        if (brandName !== null) content.settings.brandName = brandName;
+
+        const tagline = getValue('settings_tagline');
+        if (tagline !== null) content.settings.tagline = tagline;
+
+        const motto = getValue('settings_motto');
+        if (motto !== null) content.settings.motto = motto;
+
+        if (content.settings.contact) {
+            const email = getValue('settings_email');
+            if (email !== null) content.settings.contact.email = email;
+
+            const phone = getValue('settings_phone');
+            if (phone !== null) content.settings.contact.phone = phone;
+
+            const address = getValue('settings_address');
+            if (address !== null) content.settings.contact.address = address;
+        }
+
+        if (content.settings.hours) {
+            const weekday = getValue('settings_hours_weekday');
+            if (weekday !== null) content.settings.hours.weekday = weekday;
+
+            const saturday = getValue('settings_hours_saturday');
+            if (saturday !== null) content.settings.hours.saturday = saturday;
+
+            const sunday = getValue('settings_hours_sunday');
+            if (sunday !== null) content.settings.hours.sunday = sunday;
+        }
+    }
+
+    // --- Homepage ---
+    if (content.homepage) {
+        if (content.homepage.hero) {
+            const heroTitle = getValue('homepage_hero_title');
+            if (heroTitle !== null) content.homepage.hero.title = heroTitle;
+
+            const heroSubtitle = getValue('homepage_hero_subtitle');
+            if (heroSubtitle !== null) content.homepage.hero.subtitle = heroSubtitle;
+
+            const heroDesc = getValue('homepage_hero_description');
+            if (heroDesc !== null) content.homepage.hero.description = heroDesc;
+        }
+        if (content.homepage.approach) {
+            const approachTitle = getValue('homepage_approach_title');
+            if (approachTitle !== null) content.homepage.approach.title = approachTitle;
+
+            const approachDesc = getValue('homepage_approach_description');
+            if (approachDesc !== null) content.homepage.approach.description = approachDesc;
+        }
+    }
+
+    // --- About ---
+    if (content.about) {
+        if (content.about.hero) {
+            const aboutTitle = getValue('about_hero_title');
+            if (aboutTitle !== null) content.about.hero.title = aboutTitle;
+
+            const aboutSubtitle = getValue('about_hero_subtitle');
+            if (aboutSubtitle !== null) content.about.hero.subtitle = aboutSubtitle;
+
+            const aboutQuote = getValue('about_hero_quote');
+            if (aboutQuote !== null) content.about.hero.quote = aboutQuote;
+        }
+        if (content.about.journey) {
+            const journeyText = getValue('about_journey_text');
+            if (journeyText !== null) content.about.journey.text = journeyText;
+        }
+        if (content.about.philosophy) {
+            const philQuote = getValue('about_philosophy_quote');
+            if (philQuote !== null) content.about.philosophy.quote = philQuote;
+        }
+    }
+
+    // --- Services ---
+    if (content.services) {
+        const overview = getValue('services_overview');
+        if (overview !== null) content.services.overview = overview;
+    }
+
+    // --- Portfolio ---
+    if (content.portfolio) {
+        const journey = getValue('portfolio_journey');
+        if (journey !== null) content.portfolio.journey = journey;
+    }
+
+    // --- Videos ---
+    if (content.videos && content.videos.featured) {
+        const featTitle = getValue('videos_featured_title');
+        if (featTitle !== null) content.videos.featured.title = featTitle;
+
+        const featDesc = getValue('videos_featured_description');
+        if (featDesc !== null) content.videos.featured.description = featDesc;
+
+        const featUrl = getValue('videos_featured_url');
+        if (featUrl !== null) content.videos.featured.url = featUrl;
+    }
+
+    console.log('Form data collected:', content.settings);
+}
+
 // Save content to localStorage and Supabase
 async function saveContent() {
     // Always save to localStorage first (offline fallback)
