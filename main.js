@@ -435,7 +435,7 @@ async function saveToSupabase() {
 function collectFormData() {
     // Helper to get input value by ID
     const getValue = (id) => {
-        const el = document.getElementById(id);
+        const el = document.getElementById(id) || document.querySelector(`[data-field="${id}"]`);
         return el ? el.value : null;
     };
 
@@ -632,6 +632,17 @@ async function saveContent() {
 // ============================================
 // Image Upload Functions
 // ============================================
+
+// Helper to escape HTML special characters
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 // Create image upload component HTML
 function createImageUpload(fieldId, currentValue, label = 'Image') {
@@ -857,7 +868,6 @@ function renderSection(section) {
         case 'videos': contentArea.innerHTML = renderVideos(); break;
         case 'gallery': contentArea.innerHTML = renderGallery(); break;
         case 'faq': contentArea.innerHTML = renderFAQ(); break;
-        case 'heroes': contentArea.innerHTML = renderHeroImages(); break;
         default: contentArea.innerHTML = '<p>Section not found</p>';
     }
 
@@ -878,8 +888,7 @@ function getSectionTitle(section) {
         portfolio: 'Portfolio',
         videos: 'Videos',
         gallery: 'Gallery',
-        faq: 'FAQ',
-        heroes: 'Page Hero Images'
+        faq: 'FAQ'
     };
     return titles[section] || 'Content Editor';
 }
@@ -931,6 +940,11 @@ function renderDashboard() {
 function renderSettings() {
     const s = content.settings;
     return `
+        <div class="card">
+            <div class="card-header"><h3>Page Banners (Hero Images)</h3></div>
+            ${createImageUpload('contact_hero_image', content.contact?.heroImage, 'Contact Page Hero')}
+            ${createImageUpload('book_hero_image', content.book?.heroImage, 'Book Session Page Hero')}
+        </div>
         <div class="card">
             <div class="card-header"><h3>Brand Information</h3></div>
             <div class="form-row">
@@ -1142,6 +1156,10 @@ function renderServices() {
     const s = content.services;
     return `
         <div class="card">
+            <div class="card-header"><h3>Services Page Hero</h3></div>
+            ${createImageUpload('services_hero_image', content.services?.heroImage, 'Header Image')}
+        </div>
+        <div class="card">
             <div class="card-header"><h3>Services Overview</h3></div>
             <div class="form-group">
                 <label>Overview Text</label>
@@ -1191,6 +1209,10 @@ function renderServices() {
 function renderProjects() {
     return `
         <div class="card">
+            <div class="card-header"><h3>Projects Page Hero</h3></div>
+            ${createImageUpload('projects_hero_image', content.projectsPage?.heroImage, 'Header Image')}
+        </div>
+        <div class="card">
             <div class="card-header">
                 <h3>Project Items</h3>
                 <button class="btn btn-add" onclick="addListItem('projects')">+ Add Project</button>
@@ -1223,6 +1245,10 @@ function renderProjects() {
 function renderPortfolio() {
     const p = content.portfolio;
     return `
+        <div class="card">
+            <div class="card-header"><h3>Portfolio Page Hero</h3></div>
+            ${createImageUpload('portfolio_hero_image', content.portfolioPage?.heroImage, 'Header Image')}
+        </div>
         <div class="card">
             <div class="card-header"><h3>Professional Journey</h3></div>
             <div class="form-group">
@@ -1263,6 +1289,10 @@ function renderPortfolio() {
 function renderVideos() {
     const v = content.videos;
     return `
+        <div class="card">
+            <div class="card-header"><h3>Videos Page Hero</h3></div>
+            ${createImageUpload('videos_hero_image', content.videos?.heroImage, 'Header Image')}
+        </div>
         <div class="card">
             <div class="card-header"><h3>Featured Video</h3></div>
             <div class="form-group">
@@ -1323,6 +1353,10 @@ function renderGallery() {
         <div class="section-intro">
             <h3>Photo Gallery</h3>
             <p>Manage your photo gallery. Upload new images or update existing ones. Images will be displayed on the Gallery page.</p>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>Gallery Page Hero</h3></div>
+            ${createImageUpload('gallery_hero_image', content.galleryPage?.heroImage, 'Header Image')}
         </div>
         <div class="card">
             <div class="card-header">
@@ -1516,98 +1550,4 @@ function exportSite() {
     showToast('Content exported! Use this JSON to update your site files.', 'success');
 }
 
-// Hero Images
-function renderHeroImages() {
-    // Helper to render image input
-    const renderImageInput = (id, label, value, helpText) => `
-        <div class="form-group">
-            <label>${label}</label>
-            <input type="text" id="${id}" class="form-control" value="${escapeHtml(value || '')}" placeholder="Image URL (http://...)">
-            ${helpText ? `<small class="help-text">${helpText}</small>` : ''}
-            ${value ? `<div class="image-preview"><img src="${value}" alt="Preview" style="max-height: 150px; margin-top: 10px; border-radius: 8px;"></div>` : ''}
-        </div>
-    `;
 
-    return `
-        <div class="card">
-            <div class="card-header">
-                <h3>Homepage Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('homepage_hero_image', 'Hero Image URL', content.homepage?.hero?.image, 'Main image for the homepage hero section')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>About Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('about_hero_image', 'Hero Image URL', content.about?.hero?.image, 'Main image for the About page')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>Services Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('services_hero_image', 'Hero Image URL', content.services?.heroImage, 'Top banner image for Services page')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>Contact Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('contact_hero_image', 'Hero Image URL', content.contact?.heroImage, 'Top banner image for Contact page')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>Book Session Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('book_hero_image', 'Hero Image URL', content.book?.heroImage, 'Top banner image for Book Session page')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>Projects Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('projects_hero_image', 'Hero Image URL', content.projectsPage?.heroImage, 'Top banner image for Projects page')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>Portfolio Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('portfolio_hero_image', 'Hero Image URL', content.portfolioPage?.heroImage, 'Top banner image for Portfolio page')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>Videos Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('videos_hero_image', 'Hero Image URL', content.videos?.heroImage, 'Top banner image for Videos page')}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3>Gallery Page Hero</h3>
-            </div>
-            <div class="card-body">
-                ${renderImageInput('gallery_hero_image', 'Hero Image URL', content.galleryPage?.heroImage, 'Top banner image for Gallery page')}
-            </div>
-        </div>
-    `;
-}
