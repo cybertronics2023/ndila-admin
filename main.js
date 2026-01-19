@@ -213,6 +213,9 @@ const defaultContent = {
     },
     galleryPage: {
         heroImage: ""
+    },
+    privacyPage: {
+        heroImage: ""
     }
 };
 
@@ -606,6 +609,12 @@ function collectFormData() {
         content.galleryPage.heroImage = galleryHero;
     }
 
+    const privacyHero = getHeroImage('privacy_hero_image');
+    if (privacyHero !== null) {
+        if (!content.privacyPage) content.privacyPage = {};
+        content.privacyPage.heroImage = privacyHero;
+    }
+
     console.log('Form data collected:', content.settings);
 }
 
@@ -944,6 +953,7 @@ function renderSettings() {
             <div class="card-header"><h3>Page Banners (Hero Images)</h3></div>
             ${createImageUpload('contact_hero_image', content.contact?.heroImage, 'Contact Page Hero')}
             ${createImageUpload('book_hero_image', content.book?.heroImage, 'Book Session Page Hero')}
+            ${createImageUpload('privacy_hero_image', content.privacyPage?.heroImage, 'Privacy Policy Page Hero')}
         </div>
         <div class="card">
             <div class="card-header"><h3>Brand Information</h3></div>
