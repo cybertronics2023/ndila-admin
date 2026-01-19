@@ -433,27 +433,42 @@ function collectFormData() {
         const motto = getValue('settings_motto');
         if (motto !== null) content.settings.motto = motto;
 
-        if (content.settings.contact) {
-            const email = getValue('settings_email');
-            if (email !== null) content.settings.contact.email = email;
-
-            const phone = getValue('settings_phone');
-            if (phone !== null) content.settings.contact.phone = phone;
-
-            const address = getValue('settings_address');
-            if (address !== null) content.settings.contact.address = address;
+        // Ensure contact object exists
+        if (!content.settings.contact) {
+            content.settings.contact = {};
         }
 
-        if (content.settings.hours) {
-            const weekday = getValue('settings_hours_weekday');
-            if (weekday !== null) content.settings.hours.weekday = weekday;
-
-            const saturday = getValue('settings_hours_saturday');
-            if (saturday !== null) content.settings.hours.saturday = saturday;
-
-            const sunday = getValue('settings_hours_sunday');
-            if (sunday !== null) content.settings.hours.sunday = sunday;
+        const email = getValue('settings_email');
+        if (email !== null) {
+            content.settings.contact.email = email;
+            content.settings.email = email; // Also update top-level for compatibility
         }
+
+        const phone = getValue('settings_phone');
+        if (phone !== null) {
+            content.settings.contact.phone = phone;
+            content.settings.phone = phone; // Also update top-level for compatibility
+        }
+
+        const address = getValue('settings_address');
+        if (address !== null) {
+            content.settings.contact.address = address;
+            content.settings.address = address; // Also update top-level for compatibility
+        }
+
+        // Ensure hours object exists
+        if (!content.settings.hours) {
+            content.settings.hours = {};
+        }
+
+        const weekday = getValue('settings_hours_weekday');
+        if (weekday !== null) content.settings.hours.weekday = weekday;
+
+        const saturday = getValue('settings_hours_saturday');
+        if (saturday !== null) content.settings.hours.saturday = saturday;
+
+        const sunday = getValue('settings_hours_sunday');
+        if (sunday !== null) content.settings.hours.sunday = sunday;
     }
 
     // --- Homepage ---
