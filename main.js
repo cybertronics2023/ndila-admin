@@ -721,6 +721,12 @@ function setupNavigation() {
             e.preventDefault();
             const section = item.dataset.section;
 
+            // Collect data from current section before switching
+            // This ensures edits aren't lost when the DOM is replaced
+            if (typeof collectFormData === 'function') {
+                collectFormData();
+            }
+
             // Update active state
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             item.classList.add('active');
