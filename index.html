@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jane Ndila | Admin Dashboard</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2326960a' stroke-width='2'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5'/%3E%3Cpath d='M2 12l10 5 10-5'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>JANE NDILA</h1>
+                <p>Content Manager</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i data-lucide="layout-dashboard"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i data-lucide="settings"></i> Site Settings
+                </a>
+                <a href="#" class="nav-item" data-section="homepage">
+                    <i data-lucide="home"></i> Homepage
+                </a>
+                <a href="#" class="nav-item" data-section="about">
+                    <i data-lucide="user"></i> About
+                </a>
+                <a href="#" class="nav-item" data-section="services">
+                    <i data-lucide="briefcase"></i> Services
+                </a>
+                <a href="#" class="nav-item" data-section="projects">
+                    <i data-lucide="folder-open"></i> Projects
+                </a>
+                <a href="#" class="nav-item" data-section="portfolio">
+                    <i data-lucide="award"></i> Portfolio
+                </a>
+                <a href="#" class="nav-item" data-section="videos">
+                    <i data-lucide="video"></i> Videos
+                </a>
+                <a href="#" class="nav-item" data-section="gallery">
+                    <i data-lucide="image"></i> Gallery
+                </a>
+                <a href="#" class="nav-item" data-section="faq">
+                    <i data-lucide="help-circle"></i> FAQ
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-export" id="exportBtn">
+                    <i data-lucide="download"></i> Export Site
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-left">
+                    <h2 id="sectionTitle">Dashboard</h2>
+                    <span class="sync-status" id="syncStatus" title="Cloud sync status">
+                        <i data-lucide="hard-drive" class="sync-icon"></i>
+                        <span class="sync-text">Local</span>
+                    </span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="configBtn" title="Supabase Settings">
+                        <i data-lucide="cloud"></i> Connect
+                    </button>
+                    <button class="btn btn-save" id="saveBtn">
+                        <i data-lucide="save"></i> Save Changes
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area" id="contentArea">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase Config Modal -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i data-lucide="cloud" style="width:24px;height:24px;vertical-align:middle;margin-right:8px;"></i>
+                    Cloud Sync</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-intro">Connect to Supabase to sync your content to the cloud. This allows you to access
+                    your content from any device.</p>
+                <div class="form-group">
+                    <label>Supabase Project URL</label>
+                    <input type="url" id="supabaseUrl" placeholder="https://your-project.supabase.co">
+                    <p class="form-hint">Find this in your Supabase project settings</p>
+                </div>
+                <div class="form-group">
+                    <label>Supabase Anon Key</label>
+                    <input type="text" id="supabaseKey" placeholder="eyJ...">
+                    <p class="form-hint">The public anon key from API settings</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="disconnectBtn">Disconnect</button>
+                    <button class="btn btn-save" id="connectBtn">Connect & Sync</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-message"></span>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
