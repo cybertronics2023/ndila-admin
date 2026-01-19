@@ -45,7 +45,7 @@ const defaultContent = {
             title: "About Jane Ndila",
             subtitle: "Licensed Psychologist & Certified Counsellor",
             quote: '"Healing begins when we feel heard, understood, and supported in our journey toward wellness."',
-            image: "images/about-profile.jpg"
+            image: "images/about-profile.JPG"
         },
         journey: {
             text: "With over 8 years of experience in mental health care, I have dedicated my career to helping individuals and families navigate life's challenges and discover their inner strength.",
@@ -89,7 +89,7 @@ const defaultContent = {
         ]
     },
     services: {
-        heroImage: "",
+        heroImage: "images/services.JPG",
         overview: "I believe in providing holistic care that addresses not just symptoms, but the root causes of emotional distress. My integrative approach combines the best of evidence-based therapies with genuine human connection.",
         items: [
             {
@@ -200,22 +200,31 @@ const defaultContent = {
     ],
     // Page hero images
     contact: {
-        heroImage: ""
+        heroImage: "images/contact.JPG"
     },
     book: {
-        heroImage: ""
+        heroImage: "images/book.JPG"
     },
     projectsPage: {
-        heroImage: ""
+        heroImage: "images/thoughtful.JPG"
     },
     portfolioPage: {
-        heroImage: ""
+        heroImage: "images/thoughtful.JPG"
     },
     galleryPage: {
-        heroImage: ""
+        heroImage: "images/thoughtful.JPG"
+    },
+    videos: {
+        heroImage: "images/thoughtful.JPG",
+        featured: {
+            title: "Empowered for Transformation",
+            description: "Discover the key principles behind lasting personal change and how to unlock your potential for growth and healing.",
+            url: ""
+        },
+        items: []
     },
     privacyPage: {
-        heroImage: ""
+        heroImage: "images/privacy.JPG"
     }
 };
 
@@ -388,6 +397,8 @@ async function loadContent() {
 
             if (data && data.length > 0 && data[0].content) {
                 content = data[0].content;
+                // Merge with defaults to ensure new fields are populated
+                mergeDefaults(content, defaultContent);
                 localStorage.setItem('janeNdilaContent', JSON.stringify(content));
             }
             updateSyncStatus();
@@ -432,6 +443,19 @@ async function saveToSupabase() {
         console.error('Failed to save to Supabase:', e);
         throw e;
     }
+}
+
+// Helper: Deep merge defaults into content
+function mergeDefaults(target, defaults) {
+    for (const key in defaults) {
+        // If key is missing or explicitly empty string (for images), use default
+        if (target[key] === undefined || (typeof target[key] === 'string' && target[key] === '' && key.includes('Image'))) {
+            target[key] = defaults[key];
+        } else if (typeof target[key] === 'object' && target[key] !== null && typeof defaults[key] === 'object' && defaults[key] !== null) {
+            mergeDefaults(target[key], defaults[key]);
+        }
+    }
+    return target;
 }
 
 // Collect all form data into content object before saving
