@@ -89,6 +89,7 @@ const defaultContent = {
         ]
     },
     services: {
+        heroImage: "",
         overview: "I believe in providing holistic care that addresses not just symptoms, but the root causes of emotional distress. My integrative approach combines the best of evidence-based therapies with genuine human connection.",
         items: [
             {
@@ -196,7 +197,23 @@ const defaultContent = {
         { question: "How long does therapy typically last?", answer: "The duration varies depending on your goals and needs. Some clients benefit from short-term therapy (8-12 sessions), while others prefer longer-term support. We'll regularly review your progress and adjust as needed." },
         { question: "Is my information kept confidential?", answer: "Absolutely. Confidentiality is a fundamental aspect of therapy. Your information is protected by professional ethics and privacy laws. The only exceptions are if there's risk of harm to yourself or others." },
         { question: "Do you accept insurance?", answer: "I'm a private practitioner and work directly with clients. While I don't work directly with insurance companies, I can provide receipts for you to submit to your insurance provider for potential reimbursement." }
-    ]
+    ],
+    // Page hero images
+    contact: {
+        heroImage: ""
+    },
+    book: {
+        heroImage: ""
+    },
+    projectsPage: {
+        heroImage: ""
+    },
+    portfolioPage: {
+        heroImage: ""
+    },
+    galleryPage: {
+        heroImage: ""
+    }
 };
 
 // Global state
@@ -538,6 +555,57 @@ function collectFormData() {
         if (featUrl !== null) content.videos.featured.url = featUrl;
     }
 
+    // --- Hero Images ---
+    const getHeroImage = (id) => getValue(id);
+
+    const homepageHero = getHeroImage('homepage_hero_image');
+    if (homepageHero !== null && content.homepage && content.homepage.hero) content.homepage.hero.image = homepageHero;
+
+    const aboutHero = getHeroImage('about_hero_image');
+    if (aboutHero !== null && content.about && content.about.hero) content.about.hero.image = aboutHero;
+
+    const servicesHero = getHeroImage('services_hero_image');
+    if (servicesHero !== null) {
+        if (!content.services) content.services = {};
+        content.services.heroImage = servicesHero;
+    }
+
+    const contactHero = getHeroImage('contact_hero_image');
+    if (contactHero !== null) {
+        if (!content.contact) content.contact = {};
+        content.contact.heroImage = contactHero;
+    }
+
+    const bookHero = getHeroImage('book_hero_image');
+    if (bookHero !== null) {
+        if (!content.book) content.book = {};
+        content.book.heroImage = bookHero;
+    }
+
+    const projectsHero = getHeroImage('projects_hero_image');
+    if (projectsHero !== null) {
+        if (!content.projectsPage) content.projectsPage = {};
+        content.projectsPage.heroImage = projectsHero;
+    }
+
+    const portfolioHero = getHeroImage('portfolio_hero_image');
+    if (portfolioHero !== null) {
+        if (!content.portfolioPage) content.portfolioPage = {};
+        content.portfolioPage.heroImage = portfolioHero;
+    }
+
+    const videosHero = getHeroImage('videos_hero_image');
+    if (videosHero !== null) {
+        if (!content.videos) content.videos = {};
+        content.videos.heroImage = videosHero;
+    }
+
+    const galleryHero = getHeroImage('gallery_hero_image');
+    if (galleryHero !== null) {
+        if (!content.galleryPage) content.galleryPage = {};
+        content.galleryPage.heroImage = galleryHero;
+    }
+
     console.log('Form data collected:', content.settings);
 }
 
@@ -789,6 +857,7 @@ function renderSection(section) {
         case 'videos': contentArea.innerHTML = renderVideos(); break;
         case 'gallery': contentArea.innerHTML = renderGallery(); break;
         case 'faq': contentArea.innerHTML = renderFAQ(); break;
+        case 'heroes': contentArea.innerHTML = renderHeroImages(); break;
         default: contentArea.innerHTML = '<p>Section not found</p>';
     }
 
@@ -809,7 +878,8 @@ function getSectionTitle(section) {
         portfolio: 'Portfolio',
         videos: 'Videos',
         gallery: 'Gallery',
-        faq: 'FAQ'
+        faq: 'FAQ',
+        heroes: 'Page Hero Images'
     };
     return titles[section] || 'Content Editor';
 }
@@ -1431,17 +1501,113 @@ function exportSite() {
     saveContent();
 
     // Generate a summary JSON file for now
-    const dataStr = JSON.stringify(content, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const jsonStr = JSON.stringify(content, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'site-content.json';
+    a.download = `site-content-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
     showToast('Content exported! Use this JSON to update your site files.', 'success');
+}
+
+// Hero Images
+function renderHeroImages() {
+    // Helper to render image input
+    const renderImageInput = (id, label, value, helpText) => `
+        <div class="form-group">
+            <label>${label}</label>
+            <input type="text" id="${id}" class="form-control" value="${escapeHtml(value || '')}" placeholder="Image URL (http://...)">
+            ${helpText ? `<small class="help-text">${helpText}</small>` : ''}
+            ${value ? `<div class="image-preview"><img src="${value}" alt="Preview" style="max-height: 150px; margin-top: 10px; border-radius: 8px;"></div>` : ''}
+        </div>
+    `;
+
+    return `
+        <div class="card">
+            <div class="card-header">
+                <h3>Homepage Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('homepage_hero_image', 'Hero Image URL', content.homepage?.hero?.image, 'Main image for the homepage hero section')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>About Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('about_hero_image', 'Hero Image URL', content.about?.hero?.image, 'Main image for the About page')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Services Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('services_hero_image', 'Hero Image URL', content.services?.heroImage, 'Top banner image for Services page')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Contact Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('contact_hero_image', 'Hero Image URL', content.contact?.heroImage, 'Top banner image for Contact page')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Book Session Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('book_hero_image', 'Hero Image URL', content.book?.heroImage, 'Top banner image for Book Session page')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Projects Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('projects_hero_image', 'Hero Image URL', content.projectsPage?.heroImage, 'Top banner image for Projects page')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Portfolio Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('portfolio_hero_image', 'Hero Image URL', content.portfolioPage?.heroImage, 'Top banner image for Portfolio page')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Videos Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('videos_hero_image', 'Hero Image URL', content.videos?.heroImage, 'Top banner image for Videos page')}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>Gallery Page Hero</h3>
+            </div>
+            <div class="card-body">
+                ${renderImageInput('gallery_hero_image', 'Hero Image URL', content.galleryPage?.heroImage, 'Top banner image for Gallery page')}
+            </div>
+        </div>
+    `;
 }
