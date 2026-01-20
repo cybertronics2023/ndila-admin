@@ -1075,8 +1075,12 @@ function renderSettings() {
                 </div>
             </div>
             <div class="form-group">
-                <label>Address</label>
+                <label>Address (City, Country)</label>
                 <input type="text" id="settings_address" value="${s.contact.address}">
+            </div>
+            <div class="form-group">
+                <label>Building Name / Area</label>
+                <input type="text" id="settings_building" value="${s.contact.building || ''}">
             </div>
         </div>
         <div class="card">
@@ -1644,6 +1648,8 @@ function collectFormData() {
     setPath('settings.contact.email', getValue('settings_email'));
     setPath('settings.contact.phone', getValue('settings_phone'));
     setPath('settings.contact.address', getValue('settings_address'));
+    setPath('settings.contact.building', getValue('settings_building'));
+    setPath('settings.building', getValue('settings_building'));
     setPath('settings.hours.weekday', getValue('settings_hours_weekday'));
     setPath('settings.hours.saturday', getValue('settings_hours_saturday'));
     setPath('settings.hours.sunday', getValue('settings_hours_sunday'));
