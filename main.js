@@ -499,7 +499,8 @@ function escapeHtml(unsafe) {
 function createImageUpload(fieldId, currentValue, label = 'Image') {
     const hasImage = currentValue && currentValue.length > 0;
     const isBase64 = currentValue && currentValue.startsWith('data:');
-    const displaySrc = isBase64 ? currentValue : (currentValue ? `../jane-ndila/${currentValue}` : '');
+    const isUrl = currentValue && currentValue.startsWith('http');
+    const displaySrc = (isBase64 || isUrl) ? currentValue : (currentValue ? `../jane-ndila/${currentValue}` : '');
 
     return `
         <div class="form-group">
@@ -1459,27 +1460,27 @@ function collectFormData() {
             const index = parseInt(parts[2]);
             const prop = parts.slice(3).join('_');
 
-            if (listKey === 'homepage' && subKey === 'services' && content.homepage?.services) {
+            if (listKey === 'homepage' && subKey === 'services' && content.homepage?.services && content.homepage.services[index]) {
                 content.homepage.services[index][prop] = val;
-            } else if (listKey === 'services' && subKey === 'items' && content.services?.items) {
+            } else if (listKey === 'services' && subKey === 'items' && content.services?.items && content.services.items[index]) {
                 content.services.items[index][prop] = val;
-            } else if (listKey === 'about' && subKey === 'benefits' && content.about?.benefits) {
+            } else if (listKey === 'about' && subKey === 'benefits' && content.about?.benefits && content.about.benefits[index]) {
                 content.about.benefits[index][prop] = val;
-            } else if (listKey === 'portfolio' && subKey === 'achievements' && content.portfolio?.achievements) {
+            } else if (listKey === 'portfolio' && subKey === 'achievements' && content.portfolio?.achievements && content.portfolio.achievements[index]) {
                 content.portfolio.achievements[index][prop] = val;
-            } else if (listKey === 'videos' && subKey === 'items' && content.videos?.items) {
+            } else if (listKey === 'videos' && subKey === 'items' && content.videos?.items && content.videos.items[index]) {
                 content.videos.items[index][prop] = val;
-            } else if (listKey === 'gallery' && content.gallery) {
+            } else if (listKey === 'gallery' && content.gallery && content.gallery[galleryIndex]) {
                 // gallery_0_title
                 const galleryIndex = parseInt(parts[1]);
                 const galleryProp = parts.slice(2).join('_');
                 content.gallery[galleryIndex][galleryProp] = val;
-            } else if (listKey === 'faq' && content.faq) {
+            } else if (listKey === 'faq' && content.faq && content.faq[faqIndex]) {
                 // faq_0_question
                 const faqIndex = parseInt(parts[1]);
                 const faqProp = parts.slice(2).join('_');
                 content.faq[faqIndex][faqProp] = val;
-            } else if (listKey === 'projects' && content.projects) {
+            } else if (listKey === 'projects' && content.projects && content.projects[projectIndex]) {
                 // projects_0_title
                 const projectIndex = parseInt(parts[1]);
                 const projectProp = parts.slice(2).join('_');
