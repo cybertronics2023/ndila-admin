@@ -458,189 +458,7 @@ function mergeDefaults(target, defaults) {
     return target;
 }
 
-// Collect all form data into content object before saving
-function collectFormData() {
-    // Helper to get input value by ID
-    const getValue = (id) => {
-        const el = document.getElementById(id) || document.querySelector(`[data-field="${id}"]`);
-        return el ? el.value : null;
-    };
-
-    // --- Settings ---
-    if (content.settings) {
-        const brandName = getValue('settings_brandName');
-        if (brandName !== null) content.settings.brandName = brandName;
-
-        const tagline = getValue('settings_tagline');
-        if (tagline !== null) content.settings.tagline = tagline;
-
-        const motto = getValue('settings_motto');
-        if (motto !== null) content.settings.motto = motto;
-
-        // Ensure contact object exists
-        if (!content.settings.contact) {
-            content.settings.contact = {};
-        }
-
-        const email = getValue('settings_email');
-        if (email !== null) {
-            content.settings.contact.email = email;
-            content.settings.email = email; // Also update top-level for compatibility
-        }
-
-        const phone = getValue('settings_phone');
-        if (phone !== null) {
-            content.settings.contact.phone = phone;
-            content.settings.phone = phone; // Also update top-level for compatibility
-        }
-
-        const address = getValue('settings_address');
-        if (address !== null) {
-            content.settings.contact.address = address;
-            content.settings.address = address; // Also update top-level for compatibility
-        }
-
-        // Ensure hours object exists
-        if (!content.settings.hours) {
-            content.settings.hours = {};
-        }
-
-        const weekday = getValue('settings_hours_weekday');
-        if (weekday !== null) content.settings.hours.weekday = weekday;
-
-        const saturday = getValue('settings_hours_saturday');
-        if (saturday !== null) content.settings.hours.saturday = saturday;
-
-        const sunday = getValue('settings_hours_sunday');
-        if (sunday !== null) content.settings.hours.sunday = sunday;
-    }
-
-    // --- Homepage ---
-    if (content.homepage) {
-        if (content.homepage.hero) {
-            const heroTitle = getValue('homepage_hero_title');
-            if (heroTitle !== null) content.homepage.hero.title = heroTitle;
-
-            const heroSubtitle = getValue('homepage_hero_subtitle');
-            if (heroSubtitle !== null) content.homepage.hero.subtitle = heroSubtitle;
-
-            const heroDesc = getValue('homepage_hero_description');
-            if (heroDesc !== null) content.homepage.hero.description = heroDesc;
-        }
-        if (content.homepage.approach) {
-            const approachTitle = getValue('homepage_approach_title');
-            if (approachTitle !== null) content.homepage.approach.title = approachTitle;
-
-            const approachDesc = getValue('homepage_approach_description');
-            if (approachDesc !== null) content.homepage.approach.description = approachDesc;
-        }
-    }
-
-    // --- About ---
-    if (content.about) {
-        if (content.about.hero) {
-            const aboutTitle = getValue('about_hero_title');
-            if (aboutTitle !== null) content.about.hero.title = aboutTitle;
-
-            const aboutSubtitle = getValue('about_hero_subtitle');
-            if (aboutSubtitle !== null) content.about.hero.subtitle = aboutSubtitle;
-
-            const aboutQuote = getValue('about_hero_quote');
-            if (aboutQuote !== null) content.about.hero.quote = aboutQuote;
-        }
-        if (content.about.journey) {
-            const journeyText = getValue('about_journey_text');
-            if (journeyText !== null) content.about.journey.text = journeyText;
-        }
-        if (content.about.philosophy) {
-            const philQuote = getValue('about_philosophy_quote');
-            if (philQuote !== null) content.about.philosophy.quote = philQuote;
-        }
-    }
-
-    // --- Services ---
-    if (content.services) {
-        const overview = getValue('services_overview');
-        if (overview !== null) content.services.overview = overview;
-    }
-
-    // --- Portfolio ---
-    if (content.portfolio) {
-        const journey = getValue('portfolio_journey');
-        if (journey !== null) content.portfolio.journey = journey;
-    }
-
-    // --- Videos ---
-    if (content.videos && content.videos.featured) {
-        const featTitle = getValue('videos_featured_title');
-        if (featTitle !== null) content.videos.featured.title = featTitle;
-
-        const featDesc = getValue('videos_featured_description');
-        if (featDesc !== null) content.videos.featured.description = featDesc;
-
-        const featUrl = getValue('videos_featured_url');
-        if (featUrl !== null) content.videos.featured.url = featUrl;
-    }
-
-    // --- Hero Images ---
-    const getHeroImage = (id) => getValue(id);
-
-    const homepageHero = getHeroImage('homepage_hero_image');
-    if (homepageHero !== null && content.homepage && content.homepage.hero) content.homepage.hero.image = homepageHero;
-
-    const aboutHero = getHeroImage('about_hero_image');
-    if (aboutHero !== null && content.about && content.about.hero) content.about.hero.image = aboutHero;
-
-    const servicesHero = getHeroImage('services_hero_image');
-    if (servicesHero !== null) {
-        if (!content.services) content.services = {};
-        content.services.heroImage = servicesHero;
-    }
-
-    const contactHero = getHeroImage('contact_hero_image');
-    if (contactHero !== null) {
-        if (!content.contact) content.contact = {};
-        content.contact.heroImage = contactHero;
-    }
-
-    const bookHero = getHeroImage('book_hero_image');
-    if (bookHero !== null) {
-        if (!content.book) content.book = {};
-        content.book.heroImage = bookHero;
-    }
-
-    const projectsHero = getHeroImage('projects_hero_image');
-    if (projectsHero !== null) {
-        if (!content.projectsPage) content.projectsPage = {};
-        content.projectsPage.heroImage = projectsHero;
-    }
-
-    const portfolioHero = getHeroImage('portfolio_hero_image');
-    if (portfolioHero !== null) {
-        if (!content.portfolioPage) content.portfolioPage = {};
-        content.portfolioPage.heroImage = portfolioHero;
-    }
-
-    const videosHero = getHeroImage('videos_hero_image');
-    if (videosHero !== null) {
-        if (!content.videos) content.videos = {};
-        content.videos.heroImage = videosHero;
-    }
-
-    const galleryHero = getHeroImage('gallery_hero_image');
-    if (galleryHero !== null) {
-        if (!content.galleryPage) content.galleryPage = {};
-        content.galleryPage.heroImage = galleryHero;
-    }
-
-    const privacyHero = getHeroImage('privacy_hero_image');
-    if (privacyHero !== null) {
-        if (!content.privacyPage) content.privacyPage = {};
-        content.privacyPage.heroImage = privacyHero;
-    }
-
-    console.log('Form data collected:', content.settings);
-}
+// Note: collectFormData is defined at the bottom of the file
 
 // Save content to localStorage and Supabase
 async function saveContent() {
@@ -784,9 +602,10 @@ function updateImageField(fieldId, value, displaySrc) {
         previewBox.innerHTML = `<img src="${displaySrc}" alt="Preview" class="preview-img">`;
     }
 
-    // Update content object
-    const parts = fieldId.split('_');
-    setNestedValue(content, parts, value);
+    // Let collectFormData handle the nested structure during save
+    // but update the input field now for immediate UI feedback
+    const inputField = document.querySelector(`[data-field="${fieldId}"]`) || document.getElementById(fieldId);
+    if (inputField) inputField.value = value;
 }
 
 // Clear image
@@ -1537,30 +1356,139 @@ function setupListActions() {
     // Any additional list setup
 }
 
-// Collect form data
+// Collect all form data into content object before saving
 function collectFormData() {
-    // Collect all input values
-    document.querySelectorAll('input[id], textarea[id], select[id]').forEach(el => {
-        const path = el.id.split('_');
-        setNestedValue(content, path, el.type === 'checkbox' ? el.checked : el.value);
-    });
+    // Helper to get input value by ID
+    const getValue = (id) => {
+        const el = document.getElementById(id) || document.querySelector(`[data-field="${id}"]`);
+        if (!el) return null;
+        return el.type === 'checkbox' ? el.checked : el.value;
+    };
 
-    // Collect data-field items (list items)
-    document.querySelectorAll('[data-field]').forEach(el => {
-        const path = el.dataset.field.split('_');
-        setNestedValue(content, path, el.type === 'checkbox' ? el.checked : el.value);
-    });
-}
+    // Helper to safely set nested value in content object
+    const setPath = (path, value) => {
+        if (value === null) return;
+        let current = content;
+        const keys = path.split('.');
+        for (let i = 0; i < keys.length - 1; i++) {
+            const key = keys[i];
+            if (current[key] === undefined) current[key] = {};
+            current = current[key];
+        }
+        current[keys[keys.length - 1]] = value;
+    };
 
-function setNestedValue(obj, path, value) {
-    let current = obj;
-    for (let i = 0; i < path.length - 1; i++) {
-        const key = isNaN(path[i]) ? path[i] : parseInt(path[i]);
-        if (current[key] === undefined) current[key] = {};
-        current = current[key];
+    // --- Settings ---
+    setPath('settings.brandName', getValue('settings_brandName'));
+    setPath('settings.tagline', getValue('settings_tagline'));
+    setPath('settings.motto', getValue('settings_motto'));
+    setPath('settings.email', getValue('settings_email'));
+    setPath('settings.phone', getValue('settings_phone'));
+    setPath('settings.address', getValue('settings_address'));
+    setPath('settings.contact.email', getValue('settings_email'));
+    setPath('settings.contact.phone', getValue('settings_phone'));
+    setPath('settings.contact.address', getValue('settings_address'));
+    setPath('settings.hours.weekday', getValue('settings_hours_weekday'));
+    setPath('settings.hours.saturday', getValue('settings_hours_saturday'));
+    setPath('settings.hours.sunday', getValue('settings_hours_sunday'));
+
+    // --- Homepage ---
+    setPath('homepage.hero.title', getValue('homepage_hero_title'));
+    setPath('homepage.hero.subtitle', getValue('homepage_hero_subtitle'));
+    setPath('homepage.hero.description', getValue('homepage_hero_description'));
+    setPath('homepage.hero.image', getValue('homepage_hero_image'));
+    setPath('homepage.approach.title', getValue('homepage_approach_title'));
+    setPath('homepage.approach.description', getValue('homepage_approach_description'));
+    setPath('homepage.approach.image', getValue('homepage_approach_image'));
+
+    // --- About ---
+    setPath('about.hero.title', getValue('about_hero_title'));
+    setPath('about.hero.subtitle', getValue('about_hero_subtitle'));
+    setPath('about.hero.quote', getValue('about_hero_quote'));
+    setPath('about.hero.image', getValue('about_hero_image'));
+    setPath('about.journey.text', getValue('about_journey_text'));
+    setPath('about.philosophy.quote', getValue('about_philosophy_quote'));
+
+    // Stats
+    if (content.about?.journey?.stats) {
+        content.about.journey.stats.forEach((_, i) => {
+            setPath(`about.journey.stats.${i}.value`, getValue(`about_journey_stats_${i}_value`));
+            setPath(`about.journey.stats.${i}.label`, getValue(`about_journey_stats_${i}_label`));
+        });
     }
-    const finalKey = isNaN(path[path.length - 1]) ? path[path.length - 1] : parseInt(path[path.length - 1]);
-    current[finalKey] = value;
+
+    // --- Services ---
+    setPath('services.overview', getValue('services_overview'));
+    setPath('services.heroImage', getValue('services_hero_image'));
+
+    // --- Projects ---
+    setPath('projectsPage.heroImage', getValue('projects_hero_image'));
+
+    // --- Portfolio ---
+    setPath('portfolioPage.heroImage', getValue('portfolio_hero_image'));
+    setPath('portfolio.journey', getValue('portfolio_journey'));
+
+    // --- Videos ---
+    setPath('videos.heroImage', getValue('videos_hero_image'));
+    setPath('videos.featured.title', getValue('videos_featured_title'));
+    setPath('videos.featured.description', getValue('videos_featured_description'));
+    setPath('videos.featured.url', getValue('videos_featured_url'));
+
+    // --- Gallery ---
+    setPath('galleryPage.heroImage', getValue('gallery_hero_image'));
+
+    // --- Privacy ---
+    setPath('privacyPage.heroImage', getValue('privacy_hero_image'));
+
+    // --- Common Page Banners ---
+    setPath('contact.heroImage', getValue('contact_hero_image'));
+    setPath('book.heroImage', getValue('book_hero_image'));
+
+    // --- List Items ---
+    // These need special care because they are dynamic
+    document.querySelectorAll('[data-field]').forEach(el => {
+        const field = el.dataset.field;
+        const val = el.type === 'checkbox' ? el.checked : el.value;
+        const parts = field.split('_');
+
+        // Map lists: listKey_index_prop
+        // e.g., homepage_services_0_title -> homepage.services[0].title
+        if (parts.length >= 3) {
+            const listKey = parts[0];
+            const subKey = parts[1];
+            const index = parseInt(parts[2]);
+            const prop = parts.slice(3).join('_');
+
+            if (listKey === 'homepage' && subKey === 'services' && content.homepage?.services) {
+                content.homepage.services[index][prop] = val;
+            } else if (listKey === 'services' && subKey === 'items' && content.services?.items) {
+                content.services.items[index][prop] = val;
+            } else if (listKey === 'about' && subKey === 'benefits' && content.about?.benefits) {
+                content.about.benefits[index][prop] = val;
+            } else if (listKey === 'portfolio' && subKey === 'achievements' && content.portfolio?.achievements) {
+                content.portfolio.achievements[index][prop] = val;
+            } else if (listKey === 'videos' && subKey === 'items' && content.videos?.items) {
+                content.videos.items[index][prop] = val;
+            } else if (listKey === 'gallery' && content.gallery) {
+                // gallery_0_title
+                const galleryIndex = parseInt(parts[1]);
+                const galleryProp = parts.slice(2).join('_');
+                content.gallery[galleryIndex][galleryProp] = val;
+            } else if (listKey === 'faq' && content.faq) {
+                // faq_0_question
+                const faqIndex = parseInt(parts[1]);
+                const faqProp = parts.slice(2).join('_');
+                content.faq[faqIndex][faqProp] = val;
+            } else if (listKey === 'projects' && content.projects) {
+                // projects_0_title
+                const projectIndex = parseInt(parts[1]);
+                const projectProp = parts.slice(2).join('_');
+                content.projects[projectIndex][projectProp] = val;
+            }
+        }
+    });
+
+    console.log('Form data collected:', content);
 }
 
 // Export site
