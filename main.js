@@ -233,26 +233,131 @@ let content = {};
 let currentSection = 'dashboard';
 let supabaseClient = null;
 let isConnected = false;
+let session = null;
 
 // Supabase configuration
 const SUPABASE_CONFIG_KEY = 'janeNdilaSupabaseConfig';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Initialize Supabase
     await initSupabase();
-    await loadContent();
-    setupNavigation();
+
+    // 2. Setup Auth Listeners & Check Session
+    setupAuthListeners();
+
+    // 3. Setup UI Listeners (always needed)
+    setupLoginHandler();
     setupSaveButton();
     setupExportButton();
     setupSupabaseModal();
-    renderSection('dashboard');
-    updateSyncStatus();
 });
+
+// Setup Login Form Handler
+function setupLoginHandler() {
+    const loginForm = document.getElementById('loginForm');
+    if (!loginForm) return;
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        if (!email || !password) return;
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Signing in...';
+        loginError.style.display = 'none';
+
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (error) throw error;
+
+            // Auth listener will handle the UI switch
+        } catch (err) {
+            console.error('Login error:', err);
+            loginError.textContent = err.message || 'Invalid login credentials';
+            loginError.style.display = 'block';
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Sign In';
+        }
+    });
+
+    // Handle logout button
+    const logoutBtn = document.getElementById('sidebarLogout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabaseClient.auth.signOut();
+        });
+    }
+}
+
+// Auth State Changes
+function setupAuthListeners() {
+    if (!supabaseClient) return;
+
+    supabaseClient.auth.onAuthStateChange(async (event, newSession) => {
+        console.log('Auth state change:', event, newSession);
+        session = newSession;
+
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+            if (session) {
+                showAdminInterface();
+            } else if (event === 'INITIAL_SESSION') {
+                showLoginInterface();
+            }
+        } else if (event === 'SIGNED_OUT') {
+            showLoginInterface();
+        }
+    });
+}
+
+function showAdminInterface() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminContainer').style.display = 'grid';
+
+    // Load content now that we are authorized
+    loadContent().then(() => {
+        setupNavigation();
+        renderSection('dashboard');
+        updateSyncStatus();
+    });
+}
+
+function showLoginInterface() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminContainer').style.display = 'none';
+
+    // Reset login form
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+    }
+}
 
 // Initialize Supabase client
 async function initSupabase() {
-    const url = 'https://avezwecbtvtkbtctsbzh.supabase.co';
-    const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZXp3ZWNidHZ0a2J0Y3RzYnpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4MTk1MDEsImV4cCI6MjA4NDM5NTUwMX0.qa-Tnzl37ts25QAtQ_ek6BljCo-ndZjS-2rD0T03bhM';
+    // Try to load saved config first
+    const savedConfig = localStorage.getItem(SUPABASE_CONFIG_KEY);
+    let url, key;
+
+    if (savedConfig) {
+        const config = JSON.parse(savedConfig);
+        url = config.url;
+        key = config.key;
+    } else {
+        // Default values
+        url = 'https://avezwecbtvtkbtctsbzh.supabase.co';
+        key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZXp3ZWNidHZ0a2J0Y3RzYnpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4MTk1MDEsImV4cCI6MjA4NDM5NTUwMX0.qa-Tnzl37ts25QAtQ_ek6BljCo-ndZjS-2rD0T03bhM';
+    }
 
     try {
         supabaseClient = window.supabase.createClient(url, key);
