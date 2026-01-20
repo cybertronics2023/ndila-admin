@@ -470,6 +470,48 @@ h6 {
     line-height: 1.7;
 }
 
+/* === Video Upload === */
+.video-upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.video-preview-box {
+    width: 100%;
+    min-height: 200px;
+    background: #f8f9fa;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: #999;
+}
+
+.preview-video {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 4px;
+}
+
+.video-upload-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.video-path-input {
+    flex: 1;
+}
+
+.no-video {
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
 /* === Image Upload === */
 .image-upload-container {
     display: flex;
