@@ -618,6 +618,137 @@ function clearImage(fieldId) {
     }
 }
 
+// ============================================
+// Video Upload Functions
+// ============================================
+
+// Create video upload component HTML
+function createVideoUpload(fieldId, currentValue, label = 'Video') {
+    const hasVideo = currentValue && currentValue.length > 0;
+    const isUrl = currentValue && currentValue.startsWith('http');
+    const displaySrc = currentValue;
+
+    return `
+        <div class="form-group">
+            <label>${label}</label>
+            <div class="video-upload-container">
+                <div class="video-preview-box" id="preview_${fieldId}">
+                    ${hasVideo ? `
+                        <video width="100%" height="auto" controls class="preview-video">
+                            <source src="${displaySrc}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>` : '<span class="no-video">No video</span>'}
+                </div>
+                <div class="video-upload-actions">
+                    <label class="btn btn-secondary upload-btn">
+                        <i data-lucide="video"></i> Upload Video
+                        <input type="file" accept="video/*" onchange="handleVideoUpload('${fieldId}', this)" hidden>
+                    </label>
+                    <input type="text" data-field="${fieldId}" value="${currentValue || ''}" placeholder="Or enter video URL" class="video-path-input">
+                    ${hasVideo ? `<button type="button" class="btn btn-delete" onclick="clearVideo('${fieldId}')">Remove</button>` : ''}
+                </div>
+            </div>
+            <p class="form-hint">Upload a video or enter a URL (Max 50MB)</p>
+        </div>
+    `;
+}
+
+// Handle video file upload
+async function handleVideoUpload(fieldId, input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Check file size (max 50MB for videos)
+    if (file.size > 50 * 1024 * 1024) {
+        showToast('Video too large. Max size is 50MB.', 'error');
+        return;
+    }
+
+    // Show loading state
+    const previewBox = document.getElementById(`preview_${fieldId}`);
+    previewBox.innerHTML = '<span class="loading">Uploading video...</span>';
+
+    try {
+        // Try Supabase Storage if connected
+        if (isConnected && supabaseClient) {
+            const videoUrl = await uploadVideoToSupabaseStorage(file, fieldId);
+            if (videoUrl) {
+                updateVideoField(fieldId, videoUrl);
+                return;
+            }
+        }
+
+        // Base64 fallback (not recommended for videos but here as a last resort for small ones)
+        if (file.size < 5 * 1024 * 1024) {
+            const base64 = await fileToBase64(file);
+            updateVideoField(fieldId, base64);
+        } else {
+            showToast('Connect to Supabase to upload large videos', 'warning');
+            previewBox.innerHTML = '<span class="no-video">Storage required</span>';
+        }
+
+    } catch (e) {
+        console.error('Video upload failed:', e);
+        showToast('Video upload failed', 'error');
+        previewBox.innerHTML = '<span class="no-video">Upload failed</span>';
+    }
+}
+
+// Upload video to Supabase Storage
+async function uploadVideoToSupabaseStorage(file, fieldId) {
+    try {
+        const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+        // Using 'videos' bucket - assuming it exists or using generic storage
+        const { data, error } = await supabaseClient.storage
+            .from('videos')
+            .upload(fileName, file, { upsert: true });
+
+        if (error) {
+            // Fallback to images bucket if videos bucket doesn't exist (Supabase often has 'images' by default)
+            console.warn('Videos bucket not found, trying images bucket');
+            const { data: imgData, error: imgError } = await supabaseClient.storage
+                .from('images')
+                .upload(fileName, file, { upsert: true });
+
+            if (imgError) throw imgError;
+        }
+
+        const bucket = (error) ? 'images' : 'videos';
+        const { data: urlData } = supabaseClient.storage
+            .from(bucket)
+            .getPublicUrl(fileName);
+
+        return urlData.publicUrl;
+    } catch (e) {
+        console.warn('Supabase Video Storage upload failed:', e);
+        return null;
+    }
+}
+
+// Update video field value and preview
+function updateVideoField(fieldId, value) {
+    const input = document.querySelector(`[data-field="${fieldId}"]`);
+    if (input) input.value = value;
+
+    const previewBox = document.getElementById(`preview_${fieldId}`);
+    if (previewBox) {
+        previewBox.innerHTML = `
+            <video width="100%" height="auto" controls class="preview-video">
+                <source src="${value}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>`;
+    }
+}
+
+// Clear video
+function clearVideo(fieldId) {
+    updateVideoField(fieldId, '');
+    const previewBox = document.getElementById(`preview_${fieldId}`);
+    if (previewBox) {
+        previewBox.innerHTML = '<span class="no-video">No video</span>';
+    }
+}
+
 // Handle gallery image upload
 async function handleGalleryImageUpload(index, input) {
     const file = input.files[0];
@@ -1158,9 +1289,10 @@ function renderVideos() {
                 <textarea id="videos_featured_description" rows="3">${v.featured.description}</textarea>
             </div>
             <div class="form-group">
-                <label>Video URL (YouTube/Vimeo)</label>
-                <input type="url" id="videos_featured_url" value="${v.featured.url}">
+                <label>Featured Video</label>
+                ${createVideoUpload('videos_featured_url', v.featured.url, 'Video File or URL')}
             </div>
+            ${createImageUpload('videos_featured_thumbnail', v.featured.thumbnail || '', 'Custom Thumbnail (Optional)')}
         </div>
         <div class="card">
             <div class="card-header">
@@ -1190,6 +1322,11 @@ function renderVideos() {
                             <label>Description</label>
                             <textarea data-field="videos_items_${i}_description" rows="2">${item.description}</textarea>
                         </div>
+                        <div class="form-group">
+                            <label>Video</label>
+                            ${createVideoUpload(`videos_items_${i}_url`, item.url || '', 'Video File or URL')}
+                        </div>
+                        ${createImageUpload(`videos_items_${i}_thumbnail`, item.thumbnail || '', 'Thumbnail')}
                         <div class="form-group">
                             <label>Date</label>
                             <input type="text" data-field="videos_items_${i}_date" value="${item.date}">
@@ -1442,6 +1579,7 @@ function collectFormData() {
     setPath('videos.featured.title', getValue('videos_featured_title'));
     setPath('videos.featured.description', getValue('videos_featured_description'));
     setPath('videos.featured.url', getValue('videos_featured_url'));
+    setPath('videos.featured.thumbnail', getValue('videos_featured_thumbnail'));
 
     // --- Gallery ---
     setPath('galleryPage.heroImage', getValue('gallery_hero_image'));
