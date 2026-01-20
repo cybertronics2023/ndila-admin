@@ -877,6 +877,16 @@ function getSectionTitle(section) {
     return titles[section] || 'Content Editor';
 }
 
+function clearFeaturedVideo() {
+    if (confirm('Are you sure you want to clear all featured video information? This will hide the section on the website.')) {
+        document.getElementById('videos_featured_title').value = '';
+        document.getElementById('videos_featured_description').value = '';
+        clearVideo('videos_featured_url');
+        clearImage('videos_featured_thumbnail');
+        showToast('Featured video cleared', 'success');
+    }
+}
+
 // Dashboard
 function renderDashboard() {
     return `
@@ -1279,7 +1289,10 @@ function renderVideos() {
             ${createImageUpload('videos_hero_image', content.videos?.heroImage, 'Header Image')}
         </div>
         <div class="card">
-            <div class="card-header"><h3>Featured Video</h3></div>
+            <div class="card-header">
+                <h3>Featured Video</h3>
+                <button class="btn btn-delete" onclick="clearFeaturedVideo()">Clear All</button>
+            </div>
             <div class="form-group">
                 <label>Title</label>
                 <input type="text" id="videos_featured_title" value="${v.featured.title}">
