@@ -1225,6 +1225,29 @@ function renderAbout() {
                 <label>Quote</label>
                 <textarea id="about_philosophy_quote" rows="3">${a.philosophy.quote}</textarea>
             </div>
+            ${createImageUpload('about_philosophy_image', a.philosophy.image || '', 'Philosophy Section Image')}
+            <h4 style="margin: 1.5rem 0 1rem; color: var(--leafy-green);">Philosophy Points / Approach</h4>
+            <div class="item-list" id="about_philosophy_points_list">
+                ${(a.philosophy.points || []).map((p, i) => `
+                    <div class="item-card" data-index="${i}">
+                        <div class="item-card-header">
+                            <span class="item-card-title">${p.title || 'New Point'}</span>
+                            <div class="item-card-actions">
+                                <button class="btn btn-delete" onclick="removeListItem('about_philosophy_points', ${i})">Delete</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" data-field="about_philosophy_points_${i}_title" value="${p.title || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea data-field="about_philosophy_points_${i}_description" rows="2">${p.description || ''}</textarea>
+                        </div>
+                    </div>
+                `).join('')}
+                <button class="btn btn-add" onclick="addListItem('about_philosophy_points')">+ Add Philosophy Point</button>
+            </div>
         </div>
         <div class="card">
             <div class="card-header">
@@ -1584,7 +1607,8 @@ function addListItem(listKey) {
         'videos_items': { title: 'New Video', description: 'Video description.', duration: '10 min', date: 'Jan 2025' },
         'gallery': { title: 'New Image', description: 'Image description.', category: 'events', image: '', featured: false },
         'faq': { question: 'New Question?', answer: 'Answer here.' },
-        'about_benefits': { title: 'New Benefit', description: 'Benefit description.' }
+        'about_benefits': { title: 'New Benefit', description: 'Benefit description.' },
+        'about_philosophy_points': { title: 'New Philosophy Point', description: 'Philosophy point description.' }
     };
 
     const parts = listKey.split('_');
@@ -1670,6 +1694,7 @@ function collectFormData() {
     setPath('about.hero.image', getValue('about_hero_image'));
     setPath('about.journey.text', getValue('about_journey_text'));
     setPath('about.philosophy.quote', getValue('about_philosophy_quote'));
+    setPath('about.philosophy.image', getValue('about_philosophy_image'));
 
     // Qualifications
     const edu = getValue('about_qualifications_education');
@@ -1736,6 +1761,13 @@ function collectFormData() {
                 content.services.items[index][prop] = val;
             } else if (listKey === 'about' && subKey === 'benefits' && content.about?.benefits && content.about.benefits[index]) {
                 content.about.benefits[index][prop] = val;
+            } else if (listKey === 'about' && subKey === 'philosophy' && parts[2] === 'points' && content.about?.philosophy?.points) {
+                // about_philosophy_points_0_title
+                const pointIndex = parseInt(parts[3]);
+                const pointProp = parts.slice(4).join('_');
+                if (content.about.philosophy.points[pointIndex]) {
+                    content.about.philosophy.points[pointIndex][pointProp] = val;
+                }
             } else if (listKey === 'portfolio' && subKey === 'achievements' && content.portfolio?.achievements && content.portfolio.achievements[index]) {
                 content.portfolio.achievements[index][prop] = val;
             } else if (listKey === 'videos' && subKey === 'items' && content.videos?.items && content.videos.items[index]) {
