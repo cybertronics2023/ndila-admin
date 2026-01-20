@@ -958,15 +958,15 @@ function renderAbout() {
             <div class="card-header"><h3>Qualifications</h3></div>
             <div class="form-group">
                 <label>Education (one per line)</label>
-                <textarea id="about_qualifications_education" rows="4">${a.qualifications?.education?.join('\n') || ''}</textarea>
+                <textarea id="about_qualifications_education" rows="4">${Array.isArray(a.qualifications?.education) ? a.qualifications.education.join('\n') : ''}</textarea>
             </div>
             <div class="form-group">
                 <label>Certifications (one per line)</label>
-                <textarea id="about_qualifications_certifications" rows="4">${a.qualifications?.certifications?.join('\n') || ''}</textarea>
+                <textarea id="about_qualifications_certifications" rows="4">${Array.isArray(a.qualifications?.certifications) ? a.qualifications.certifications.join('\n') : ''}</textarea>
             </div>
             <div class="form-group">
                 <label>Memberships (one per line)</label>
-                <textarea id="about_qualifications_memberships" rows="3">${a.qualifications?.memberships?.join('\n') || ''}</textarea>
+                <textarea id="about_qualifications_memberships" rows="3">${Array.isArray(a.qualifications?.memberships) ? a.qualifications.memberships.join('\n') : ''}</textarea>
             </div>
         </div>
         <div class="card">
@@ -1410,6 +1410,14 @@ function collectFormData() {
     setPath('about.journey.text', getValue('about_journey_text'));
     setPath('about.philosophy.quote', getValue('about_philosophy_quote'));
 
+    // Qualifications
+    const edu = getValue('about_qualifications_education');
+    if (edu !== null) setPath('about.qualifications.education', edu.split('\n').map(s => s.trim()).filter(s => s));
+    const certs = getValue('about_qualifications_certifications');
+    if (certs !== null) setPath('about.qualifications.certifications', certs.split('\n').map(s => s.trim()).filter(s => s));
+    const mems = getValue('about_qualifications_memberships');
+    if (mems !== null) setPath('about.qualifications.memberships', mems.split('\n').map(s => s.trim()).filter(s => s));
+
     // Stats
     if (content.about?.journey?.stats) {
         content.about.journey.stats.forEach((_, i) => {
@@ -1470,21 +1478,27 @@ function collectFormData() {
                 content.portfolio.achievements[index][prop] = val;
             } else if (listKey === 'videos' && subKey === 'items' && content.videos?.items && content.videos.items[index]) {
                 content.videos.items[index][prop] = val;
-            } else if (listKey === 'gallery' && content.gallery && content.gallery[galleryIndex]) {
+            } else if (listKey === 'gallery' && content.gallery) {
                 // gallery_0_title
                 const galleryIndex = parseInt(parts[1]);
                 const galleryProp = parts.slice(2).join('_');
-                content.gallery[galleryIndex][galleryProp] = val;
-            } else if (listKey === 'faq' && content.faq && content.faq[faqIndex]) {
+                if (content.gallery[galleryIndex]) {
+                    content.gallery[galleryIndex][galleryProp] = val;
+                }
+            } else if (listKey === 'faq' && content.faq) {
                 // faq_0_question
                 const faqIndex = parseInt(parts[1]);
                 const faqProp = parts.slice(2).join('_');
-                content.faq[faqIndex][faqProp] = val;
-            } else if (listKey === 'projects' && content.projects && content.projects[projectIndex]) {
+                if (content.faq[faqIndex]) {
+                    content.faq[faqIndex][faqProp] = val;
+                }
+            } else if (listKey === 'projects' && content.projects) {
                 // projects_0_title
                 const projectIndex = parseInt(parts[1]);
                 const projectProp = parts.slice(2).join('_');
-                content.projects[projectIndex][projectProp] = val;
+                if (content.projects[projectIndex]) {
+                    content.projects[projectIndex][projectProp] = val;
+                }
             }
         }
     });
